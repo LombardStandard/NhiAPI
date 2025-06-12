@@ -4,23 +4,18 @@ from pydantic import BaseModel
 app = FastAPI()
 
 
-### GET method to display "Hello World"
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+# define Item data model 
+class Item(BaseModel):
+    name: str
+    description: str
+
+# in-memory inventory
+items = []
 
 
 
 ### CRUD operations
-
-# in-memory database
-items = []
-
-# define Item data model with Pydantic BaseModel
-class Item(BaseModel):
-    name: str
-    description: str
 
 # POST method to create an item
 @app.post("/items/", response_model=Item)
@@ -29,6 +24,11 @@ async def create_item(item: Item):
    return item
 
 # API endpoint for GET item requests
+
+@app.get("/items/")
+async def list_items():
+    return items
+
 @app.get("/items/{item_id}", response_model=Item)
 async def read_item(item_id: int):
     if item_id < 0 or item_id >= len(items):
@@ -52,5 +52,3 @@ async def delete_item(item_id: int):
     
     deleted_item = items.pop(item_id)
     return deleted_item
-
-# database to store items
